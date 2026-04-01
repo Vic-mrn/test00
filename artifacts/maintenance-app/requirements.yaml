@@ -1,0 +1,19 @@
+packages:
+  "lucide-react": "Icons for the UI"
+  "recharts": "Charts for the dashboard statistics"
+  "date-fns": "Date formatting and manipulation"
+  "react-hook-form": "Form state management"
+  "@hookform/resolvers": "Zod integration for forms"
+  "zod": "Schema validation for forms"
+  "clsx": "Utility for constructing className strings"
+  "tailwind-merge": "Utility to merge Tailwind classes without conflicts"
+
+images:
+  - path: "artifacts/maintenance-app/public/images/industrial-abstract.png"
+    description: "Abstract geometric industrial pattern in deep slate and neon blue, suitable for a dark modern technology background, subtle and high quality"
+    aspect_ratio: "16:9"
+
+notes:
+  - "Assuming React Query hooks and types are correctly exported from @workspace/api-client-react as specified in the context."
+  - "The application uses Spanish for all UI elements."
+  - "UI components are custom built to ensure 100% completeness and high visual quality."

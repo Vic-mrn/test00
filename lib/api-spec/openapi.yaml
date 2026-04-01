@@ -1,0 +1,440 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Maintenance Report Management API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: reports
+    description: Maintenance report operations
+  - name: users
+    description: User operations
+  - name: equipment
+    description: Equipment operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUser"
+      responses:
+        "201":
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /equipment:
+    get:
+      operationId: listEquipment
+      tags: [equipment]
+      summary: List all equipment
+      responses:
+        "200":
+          description: List of equipment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Equipment"
+    post:
+      operationId: createEquipment
+      tags: [equipment]
+      summary: Create equipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEquipment"
+      responses:
+        "201":
+          description: Created equipment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+
+  /reports:
+    get:
+      operationId: listReports
+      tags: [reports]
+      summary: List all maintenance reports
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/ReportStatus"
+        - name: assignedTo
+          in: query
+          schema:
+            type: integer
+        - name: equipmentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Create a new maintenance report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReport"
+      responses:
+        "201":
+          description: Created report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+
+  /reports/{id}:
+    get:
+      operationId: getReport
+      tags: [reports]
+      summary: Get a specific report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Report details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateReport
+      tags: [reports]
+      summary: Update a report (assign, change status, resolve)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReport"
+      responses:
+        "200":
+          description: Updated report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [reports]
+      summary: Get report statistics
+      responses:
+        "200":
+          description: Statistics overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ReportStatus:
+      type: string
+      enum:
+        - pending
+        - in_progress
+        - resolved
+        - cancelled
+
+    ReportPriority:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+        - critical
+
+    UserRole:
+      type: string
+      enum:
+        - reporter
+        - technician
+        - admin
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+
+    CreateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required:
+        - name
+        - email
+        - role
+
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - location
+        - createdAt
+
+    CreateEquipment:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - location
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: "#/components/schemas/ReportStatus"
+        priority:
+          $ref: "#/components/schemas/ReportPriority"
+        equipmentId:
+          type: integer
+        equipment:
+          $ref: "#/components/schemas/Equipment"
+        reportedById:
+          type: integer
+        reportedBy:
+          $ref: "#/components/schemas/User"
+        receivedById:
+          type: integer
+        receivedBy:
+          $ref: "#/components/schemas/User"
+        assignedToId:
+          type: integer
+        assignedTo:
+          $ref: "#/components/schemas/User"
+        resolvedById:
+          type: integer
+        resolvedBy:
+          $ref: "#/components/schemas/User"
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+        resolutionTime:
+          type: integer
+          description: Resolution time in minutes
+      required:
+        - id
+        - title
+        - description
+        - status
+        - priority
+        - equipmentId
+        - reportedById
+        - createdAt
+        - updatedAt
+
+    CreateReport:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          $ref: "#/components/schemas/ReportPriority"
+        equipmentId:
+          type: integer
+        reportedById:
+          type: integer
+        receivedById:
+          type: integer
+      required:
+        - title
+        - description
+        - priority
+        - equipmentId
+        - reportedById
+
+    UpdateReport:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/ReportStatus"
+        assignedToId:
+          type: integer
+        receivedById:
+          type: integer
+        resolvedById:
+          type: integer
+        notes:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          $ref: "#/components/schemas/ReportPriority"
+
+    Stats:
+      type: object
+      properties:
+        total:
+          type: integer
+        pending:
+          type: integer
+        inProgress:
+          type: integer
+        resolved:
+          type: integer
+        cancelled:
+          type: integer
+        avgResolutionTime:
+          type: number
+          description: Average resolution time in minutes
+      required:
+        - total
+        - pending
+        - inProgress
+        - resolved
+        - cancelled
+        - avgResolutionTime
